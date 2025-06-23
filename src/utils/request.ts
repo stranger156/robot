@@ -20,7 +20,7 @@ interface AxiosInstance{
 }
 }
 const $http = axios.create({
-  baseURL: "http://10.19.128.165:5000",
+  baseURL: "http://192.168.75.79:5000",
   timeout: 1000,
   headers:{
     "Content-Type":"application/x-www-form-urlencoded"
@@ -47,11 +47,11 @@ $http.interceptors.request.use(config=> {
 $http.interceptors.response.use((res) => {
   console.log(res)
 const code:number=res.status
-if(code!=200){
-  MSGS[code]
-  ElMessage.error(MSGS[code])
-  return Promise.reject(res.data.data)
-}
+// if(code!=200){
+//   MSGS[code]
+//   ElMessage.error(MSGS[code])
+//   return Promise.reject(res.data.data)
+// }
     return res.data;
   },
   (err: any) => {

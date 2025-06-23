@@ -1,6 +1,8 @@
 <template>
   <div class="main">
-    <div class="left"></div>
+    <div class="left">
+        <SideBar/>
+    </div>
     <div class="right">
         <ChatView/>
     </div>
@@ -10,6 +12,7 @@
 <script lang="ts" setup name="App">
 import { RouterView } from 'vue-router';
 import ChatView from './ChatView.vue';
+import SideBar from './SideBar.vue';
 </script>
 
 <style scoped>
@@ -28,14 +31,16 @@ html, body {
 }
 
 .left {
-  background-color: #ca1818;
-  flex-basis: 300px;
-  flex-shrink: 0;
+  /* 不再用 flex-basis 强制 300px */
+  /* flex-basis: 300px; */
+  /* 改为： */
+  flex: 0 0 auto;
+  /* 或者直接不写宽度相关，由 el-aside 的 :width 接管 */
+  background-color:white;
   height: 100vh;
 }
 
 .right {
- 
   flex-grow: 1;
   height: 100vh;
 }

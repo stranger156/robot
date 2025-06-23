@@ -28,7 +28,7 @@ export default defineConfig({
     // 反向代理
     proxy: {
       "/api": {
-        target: "http://10.19.128.165:5000",// 本地调试
+        target: "http://192.168.75.79:5000",// 本地调试
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },

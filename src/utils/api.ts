@@ -11,3 +11,24 @@ export const login =(params:any)=>
                 password: params.password
               }
         })
+export const register=(params:any)=>  $http(
+        {
+            url:"/signUp",
+            method:"post",
+            data: {
+                phoneNumber: params.phoneNumber,
+                password: params.password,
+                userName:params.userName
+              }
+        })
+export const getHistory =(token:any)=>{
+    console.log(token)
+  return $http(
+        {
+            url:"/getHistory",
+            method:"get",
+        })
+}
+ 
+
+ 

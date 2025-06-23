@@ -1,17 +1,18 @@
 <template>
   <div class="out">
+   <h1 style="text-align: center;color: white;font-size: 50px;">金盾智语——智能防诈骗客服</h1>
   <div class="container" :class="{ 'right-panel-active': isRegisterActive }" id="login-box">
-    <!-- 注册表单 -->
+    <!-- 注册表单 --> 
     <div class="form-container sign-up-container">
       <form @submit.prevent="handleRegister">
         <h1>注册</h1>
         <div class="txtb">
-          <input type="text" v-model="registerForm.username" required>
+          <input type="text" v-model="registerForm.userName" required>
           <span data-placeholder="Username"></span>
         </div>
         <div class="txtb">
-          <input type="email" v-model="registerForm.email" required>
-          <span data-placeholder="Email"></span>
+          <input type="phone" v-model="registerForm.phoneNumber" required>
+          <span data-placeholder="Phonenumber"></span>
         </div>
         <div class="txtb">
           <input type="password" v-model="registerForm.password" required>
@@ -63,8 +64,10 @@
 
 <script setup>
 import { ref,onMounted } from 'vue'
-import {login} from '../utils/api.ts'
+import {login, register} from '../utils/api.ts'
 import { useRouter } from 'vue-router'
+ import { useUserStore } from '@/stores/token.ts';
+ const user=useUserStore()
     const isRegisterActive = ref(false)
     const router=useRouter()
     const loginForm = ref({
@@ -73,8 +76,8 @@ import { useRouter } from 'vue-router'
     })
     
     const registerForm = ref({
-      username: '',
-      email: '',
+      userName: '',
+      phoneNumber: '',
       password: '',
       confirmPassword: ''
     })
@@ -86,8 +89,8 @@ import { useRouter } from 'vue-router'
     const handleLogin = () => {
       console.log(loginForm.value)
      login(loginForm.value).then(res=>{
-      console.log(res)
       if(res.code===200){
+        user.setLoginInfo(res.token)
     router.push('Main')
       }
      })
@@ -101,6 +104,16 @@ import { useRouter } from 'vue-router'
         return
       }
       console.log('注册数据:', registerForm.value)
+      register(registerForm.value).then(res=>{
+        if(res.code===201){
+          console.log(111)
+           ElMessage({
+    message: '注册成功',
+    type: 'success',
+  })
+  registerForm.value=[]
+        }
+      })
       // 这里添加注册API调用
     }
 
@@ -136,6 +149,10 @@ import { useRouter } from 'vue-router'
 .out{
     position: relative;
     height: 100vh;
+    padding: 80px;
+    width:100vw;
+    background-image: url("../image/bg.gif");
+    background-size: cover;
 }
 body {
     font-family: 'Montserrat',sans-serif;
@@ -168,8 +185,8 @@ a {
     margin: 15px 0;
 }
 .container {
-margin-top:200px;
-margin-left: 450px;
+margin-top:80px;
+margin-left: 300px;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 14px 28px rgba(0, 0, 0, .25), 0 10px 10px rgba(0, 0, 0, .22);

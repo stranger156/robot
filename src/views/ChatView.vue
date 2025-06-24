@@ -281,8 +281,17 @@ if(newId!==nowId.value){
 }
 
 })
-
-
+const props = defineProps({
+  initialMessage: String
+})
+// 监听 initialMessage 的变化
+watch(() => props.initialMessage, (newVal) => {
+  if (newVal) {
+    console.log(newVal)
+    form.input = newVal
+    sendMsg()  // 自动触发发送消息
+  }
+}, { immediate: true })
 </script>
 <style scoped>
 html,body{
@@ -365,8 +374,8 @@ html,body{
   line-height: 1.5;
 }
 button {
-    margin-left: 2px;
-    width:100px;
+  margin-left: 2px;
+  width:100px;
   margin-right: 30px;
   padding: 8px 16px;
   background-color: #42b983;

@@ -4,15 +4,26 @@
         <SideBar/>
     </div>
     <div class="right">
-        <ChatView/>
+        <ChatView :initialMessage="initialMessage"/>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup name="App">
 import { RouterView } from 'vue-router';
+import { useRoute } from 'vue-router'
+import { ref, watchEffect } from 'vue'
 import ChatView from './ChatView.vue';
 import SideBar from './SideBar.vue';
+const route = useRoute()
+const initialMessage = ref('')
+
+// 当路由的 `query` 参数改变时，更新 `initialMessage`
+watchEffect(() => {
+  if (route.query.msg) {
+    initialMessage.value = String(route.query.msg)
+  }
+})
 </script>
 
 <style scoped>

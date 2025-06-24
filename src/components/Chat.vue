@@ -41,6 +41,7 @@ import axios from 'axios'
 import { ref,computed } from 'vue'
 import {marked} from 'marked';
 import { useSettingStore } from '@/stores/setting';
+import { readText } from '@/utils/api';
 const set=useSettingStore()
 const gender=computed(()=>set.setting.gender)
 
@@ -67,27 +68,15 @@ const stopVideo=()=>{
     return;
   }
 }
-const read=async()=>{
+const read=()=>{
 show.value=true
 	const formData=new FormData()
 	formData.append('ai_text',props.msg.answer)
 	formData.append('gender',localStorage.getItem("gender"))
-	  const response = await axios.post(
-                'http://192.168.75.65:5000/api/vits',
-               formData,
-                {
-                   headers: { 'Content-Type': 'multipart/form-data'  },
-				   responseType: 'blob'
-                }
-            );
-			console.log(response)
-			    // 获取二进制数据
-				if(response.status===200){
+  readText(formData).then(res=>{
 					show.value=false
-				}
-    const blob = response.data;
-    // 创建临时URL
-    const url = URL.createObjectURL(blob);
+            const blob = res;
+            const url = URL.createObjectURL(blob);
      if (audioPlayer.value) {
       URL.revokeObjectURL(audioPlayer.value.src);
     }
@@ -105,7 +94,7 @@ show.value=true
     audioPlayer.value.onended = () => {
       isPlaying.value = false;
     };
-    // 创建隐藏的下载链接
+     // 创建隐藏的下载链接
     const a = document.createElement('a');
     a.href = url;
     a.download = `audio_${new Date().getTime()}.${getFileExtension(blob.type)}`;
@@ -125,7 +114,10 @@ function getFileExtension(mimeType) {
     'audio/aac': 'aac'
   };
   return extensions[mimeType.toLowerCase()] || 'audio';
-}}
+}
+  })
+   }
+
 </script>
 <style scoped>
 .chat{

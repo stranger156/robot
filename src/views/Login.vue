@@ -89,6 +89,7 @@ import { useRouter } from 'vue-router'
     const handleLogin = () => {
       console.log(loginForm.value)
      login(loginForm.value).then(res=>{
+      console.log(res)
       if(res.code===200){
         user.setLoginInfo(res.token)
     router.push('Main')

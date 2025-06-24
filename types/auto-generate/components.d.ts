@@ -9,6 +9,8 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Chat: typeof import('./../../src/components/Chat.vue')['default']
+    Content: typeof import('./../../src/components/content.vue')['default']
+    Coversation: typeof import('./../../src/components/coversation.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElButton: typeof import('element-plus/es')['ElButton']

@@ -114,6 +114,7 @@ import { useSettingStore } from '@/stores/setting'
 import { useDialogStore } from '@/stores/dialogId';
 import axios from 'axios'
 import router from '@/router'
+import { getUser } from '@/utils/api'
 const showModal=ref(false)
 const set=useSettingStore()
 const dialogVisible=ref(false)
@@ -156,26 +157,14 @@ const toLogin=()=>{
 const showComment=()=>{
   showModal.value=true
 }
-function onSearch() {
-  // optional: trigger search explicitly
-}
 const open=()=>{
   dialogVisible.value=true
 }
-async function getUser(){
-  const token=localStorage.getItem("token")
- const response = await axios.get(
-                'http://192.168.75.79:5000/getUserInfo',
-                {
-                    headers: { 
-                       'Authorization': `Bearer ${token}`
-                     }
-                }
-            );
-         userName.value=response.data.userInfo.userName
-}
+
 onMounted(()=>{
-getUser()
+getUser().then(res=>{
+  userName.value=res.userInfo.userName
+})
 })
 </script>
 

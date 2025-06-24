@@ -21,8 +21,7 @@ export const register=(params:any)=>  $http(
                 userName:params.userName
               }
         })
-export const getHistory =(token:any)=>{
-    console.log(token)
+export const getHistory =()=>{
   return $http(
         {
             url:"/getHistory",
@@ -30,5 +29,38 @@ export const getHistory =(token:any)=>{
         })
 }
  
+ export const getUser =()=>{
+  return $http(
+        {
+            url:"/getUserInfo",
+            method:"get",
+        })
+}
+ export const getAnswer =(data:any)=>{
+  return $http(
+        {
+            url:"/api/chat",
+            method:"post",
+            data
+        })
+}
 
- 
+ export const  getText=(data:any)=>{
+  return $http(
+        {
+            url:"/api/yuyinshibie",
+            method:"post",
+            data,
+            headers: { 'Content-Type': 'multipart/form-data'  }
+        })
+}
+ export const readText=(data:any)=>{
+  return $http(
+        {
+            url:"/api/vits",
+            method:"post",
+            data,
+            headers: { 'Content-Type': 'multipart/form-data'  },
+			responseType: 'blob'
+        })
+}

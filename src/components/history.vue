@@ -24,6 +24,7 @@
 import axios from 'axios';
 import { computed, onMounted, reactive, ref,watch } from 'vue';
 import { useDialogStore } from '@/stores/dialogId';
+import { getHistory } from '@/utils/api';
 const historyList= ref([]);
 const todayList =ref([])
 const otherList=ref([])
@@ -32,8 +33,6 @@ const dialog=useDialogStore()
 const dialogId=ref('')
 const id=computed(()=>dialog.dialog.id)
 const selectDialog=(id)=>{
-   console.log(111)
-   console.log(id)
    dialog.setDialogInfo(id)
 }
 // 获取 store 中的 ID（使用 computed 自动响应变化）
@@ -42,20 +41,11 @@ const gethistory=async()=>{
    todayList.value=[]
    yesterdayList.value=[]
    otherList.value=[]
-    const token=localStorage.getItem("token")
- const response = await axios.get(
-                'http://192.168.75.79:5000/getHistory',
-                {
-                    headers: { 
-                       'Authorization': `Bearer ${token}`
-                     }
-                }
-            );
-            console.log(response)
-            let list=[]
-            Object.keys( response.data.historys).forEach(key=>{
+   getHistory().then(res=>{
+   let list=[]
+            Object.keys( res.historys).forEach(key=>{
                let content=[]
-            response.data.historys[key].forEach((value)=>{
+            res.historys[key].forEach((value)=>{
                content.push(value)
                })
                list.push({
@@ -73,17 +63,16 @@ const gethistory=async()=>{
                      const yesterdayStr = yesterday.toISOString().split('T')[0];
                   if(inputDateStr==todayStr){
                   todayList.value.push(item)
-               // todayList.value.reverse();
                   }else if(inputDateStr==yesterdayStr){
                      yesterdayList.value.push(item)
                   }else{
                      otherList.value.push(item)
                   }
             })
+   })         
 }
 
 watch(id, (newId) => {
-   console.log(newId)
   dialogId.value=newId;
    let add=true
   historyList.value.forEach(item=>{
@@ -105,7 +94,6 @@ if(add){
 todayList.value[0].id=newId
    }
 }
-console.log(todayList.value)
 })
 onMounted(()=>{
    gethistory()

@@ -20,8 +20,8 @@ interface AxiosInstance{
 }
 }
 const $http = axios.create({
-  baseURL: "http://192.168.75.79:5000",
-  timeout: 1000,
+  baseURL: "http://10.16.206.67:5000",
+  timeout: 100000,
   headers:{
     "Content-Type":"application/x-www-form-urlencoded"
   }
@@ -34,9 +34,10 @@ const $http = axios.create({
 
 $http.interceptors.request.use(config=> {
   config.headers=config.headers||{}
+   const token=localStorage.getItem("token")
   if(localStorage.getItem('token'))
    {
-     config.headers.Authorization=localStorage.getItem('token')||''
+     config.headers.Authorization=`Bearer ${token}`||''
    }
     return config;
   }
@@ -45,13 +46,12 @@ $http.interceptors.request.use(config=> {
  * 响应拦截
  */
 $http.interceptors.response.use((res) => {
-  console.log(res)
 const code:number=res.status
-// if(code!=200){
-//   MSGS[code]
-//   ElMessage.error(MSGS[code])
-//   return Promise.reject(res.data.data)
-// }
+if(code!=200){
+  MSGS[code]
+  ElMessage.error(MSGS[code])
+  return Promise.reject(res.data)
+}
     return res.data;
   },
   (err: any) => {

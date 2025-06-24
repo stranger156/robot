@@ -9,6 +9,7 @@
 			 </el-main>
 			 <el-row style="margin: 0 auto;padding-left: 20px;padding-right: 20px;width:80%">
 				 <div style="width: 100%; background-color:rgb(243.9, 244.2, 244.8);border-radius: 20px;">
+          
           <el-input 
               style="float: left;width: 100%;--el-input-bg-color: rgb(243.9, 244.2, 244.8);border: none;padding: 10px;font-size:18px " 
               v-model="form.input"
@@ -18,8 +19,8 @@
               placeholder="给我发送消息"
               resize="none"
         ></el-input>
-
-                   <el-icon :size="30" @click="dialogFormVisible=true" style="float: left; margin-left: 15px;margin-bottom: 10px;"><Microphone  /></el-icon>
+                <el-icon :size="30" @click="dialogFormVisible=true" style="float: left; margin-left: 15px;margin-bottom: 10px;"><Microphone  /></el-icon>
+                <el-icon :size="30" @click="notifyParent" style="margin-left: 43%; margin-bottom: 10px;" ><Iphone /></el-icon>
                 <el-icon :size="30" style="float: right;" @click="sendMsg"><Promotion /></el-icon>
               </div>
 				 <div style="margin: 0 auto;">
@@ -55,7 +56,7 @@
 </template>
 <script setup>
 import Chat from '@/components/Chat.vue';
-import {Microphone} from '@element-plus/icons-vue'
+import {Microphone,Iphone} from '@element-plus/icons-vue'
 import { reactive,nextTick, ref,onUnmounted,watchEffect ,watch, onBeforeUnmount, onMounted, computed} from 'vue'
 import axios from 'axios';
 import { useDialogStore } from '@/stores/dialogId';
@@ -63,6 +64,7 @@ import qs from 'qs'; // 或使用 URLSearchParams
 import RecordRTC from 'recordrtc';
 import taping from "@/image/taping.png";
 import record from "@/image/record.png";
+import { getAnswer, getHistory, getText } from '@/utils/api';
 const dialog=useDialogStore()
 const dialogId=computed(()=>dialog.dialog.id)
 const show=ref(false)
@@ -115,6 +117,13 @@ const stopRecording = () => {
     mediaStream.getTracks().forEach(track => track.stop());
   });
 };
+// 定义事件
+const emit = defineEmits(['childEvent'])
+
+const notifyParent = () => {
+  // 触发事件并传递数据
+  emit('childEvent', true)
+}
 
 const sendRecording = async () => {
   if (!audioBlob.value) return;
@@ -122,26 +131,17 @@ const sendRecording = async () => {
     show.value=true
     const formData = new FormData();
     formData.append('audiofile', audioBlob.value); // 修改为.mp3后缀
-         const response = await axios.post(
-                'http://192.168.75.138:5000/api/yuyinshibie',
-                formData,
-                {
-                    headers: { 'Content-Type': 'multipart/form-data'  }
-                }
-            );
-    console.log(response)
-    if (response.status===200) {
-      show.value=false
-      form.input=response.data.text;
+    getText(formData).then(res=>{
+   show.value=false
+      form.input=res.text;
       dialogFormVisible.value=false
       setTimeout(()=>{
         sendMsg()
       },500)
       audioBlob.value = null;
       audioUrl.value = '';
-    } else {
-      throw new Error('发送失败');
-    }
+    })
+
   } catch (error) {
     console.error('发送录音出错:', error);
     alert('发送录音时出错');
@@ -176,7 +176,6 @@ async function sendMsg() {
 
         try {
           let  str=form.msgList.length===1?"true":"false"
-            const token=localStorage.getItem('token')
             const id=localStorage.getItem("id")
             console.log(str)
             const data = qs.stringify({  // 转换为 URL 编码格式
@@ -184,27 +183,11 @@ async function sendMsg() {
                 isNewDialog: str,
                 dialog_id: id
             });
-            const response = await axios.post(
-                'http://192.168.75.79:5000/api/chat',
-              data,
-                {
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded',
-                       'Authorization': `Bearer ${token}`
-                     }
-                }
-            );
-				console.log(response.data.answer)
-            if (response.status !== 200) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            if(response.status===200){
-              nowId.value=response.data.dialog_id
-            dialog.setDialogInfo(response.data.dialog_id)
-            }
-
-            const answer = response.data.answer;
-            
-            // 移除"AI生成中..."消息
+            getAnswer(data).then(res=>{
+                nowId.value=res.dialog_id
+            dialog.setDialogInfo(res.dialog_id)
+              const answer = res.answer;
+               // 移除"AI生成中..."消息
             form.msgList.pop();
             
             // 创建新消息用于伪流式显示
@@ -213,9 +196,7 @@ async function sendMsg() {
                 answer: ""
             });
             form.msgList.push(streamingMsg);
-
-            // 逐字显示效果
-            let charIndex = 0;
+              let charIndex = 0;
             const displayInterval = setInterval(() => {
                 if (charIndex < answer.length) {
                     streamingMsg.answer += answer[charIndex];
@@ -225,6 +206,7 @@ async function sendMsg() {
                     clearInterval(displayInterval);
                 }
             }, 30); // 调整这个数字可以改变显示速度
+            })
 
         } catch (error) {
             console.error('请求失败:', error);
@@ -244,39 +226,25 @@ async function sendMsg() {
 	  chat.scrollTop = chat.scrollHeight
 	}
   const gethistory=async(newId)=>{
-const token=localStorage.getItem("token")
- const response = await axios.get(
-                'http://192.168.75.79:5000/getHistory',
-                {
-                    headers: { 
-                       'Authorization': `Bearer ${token}`
-                     }
-                }
-            );
-          console.log(response)
-          console.log(newId)
-            let list=[];
-               Object.keys( response.data.historys).forEach(key=>{
-           if(key==newId){
-            console.log(99999)
-            response.data.historys[key].forEach(item=>{
+getHistory().then(res=>{
+ let list=[];
+  Object.keys( res.historys).forEach(key=>{
+     if(key==newId){
+      res.historys[key].forEach(item=>{
               list.push({
                 question:item.question,
                 answer:item.answer
               })
-            })     
-           }
-            })
-
-             form.msgList=list
-             console.log(form.msgList)
+            })   }  })
+                 form.msgList=list
              setScrollToBottom();
+})
+  
   }
 	// 监听 store 中的 ID 变化
 watch(dialogId, (newId) => {
 if(newId!==nowId.value){
   nowId.value=newId
-  console.log(555)
   gethistory(newId)
 }
 

@@ -28,7 +28,7 @@
                 <div class="panel" @click="gotoChat()">
                     <div class="text">左侧卡片</div>
                 </div>
-                <div class="panel" @click="clickPanel('right')">
+                <div class="panel" @click="gotoVideo()">
                     <div class="text">右侧卡片</div>
                 </div>
             </div>
@@ -67,7 +67,13 @@ const handleSend = () => {
 
 const gotoChat = () => {
   router.push({
-    path:'/Main'
+    path: '/Text'
+  })
+}
+
+const gotoVideo = () => {
+  router.push({
+    path: '/Video'
   })
 }
 </script>

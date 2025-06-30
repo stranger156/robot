@@ -1,7 +1,10 @@
 <template>
   <div class="page">
     <el-container>
-      <el-header style="display: flex; justify-content: center; align-content: end;"><el-text style="font-size: xx-large; font-weight: bolder;">文本风险检测</el-text></el-header>
+      <el-header style="display: flex; justify-content: center; align-items: center;">
+        <el-text style="font-size: xx-large; font-weight: bolder; margin: 0 auto;">文本风险检测</el-text>
+        <el-button type="primary" style="" icon="HomeFilled" @click="gotomenu">回到主页</el-button>
+      </el-header>
       <el-container>
         <el-main>
           <!-- 网格布局 -->
@@ -111,7 +114,7 @@
 
 
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed } from 'vue'
 import axios from 'axios' // 引入 axios 发送 HTTP 请求
 import { ElMessage } from 'element-plus' // 使用 Element Plus 的提示信息组件
 import { use } from 'echarts/core'
@@ -119,6 +122,9 @@ import { GaugeChart, BarChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { graphic } from 'echarts'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 use([TitleComponent, TooltipComponent, GaugeChart, CanvasRenderer, BarChart])
 
@@ -335,6 +341,12 @@ const chartOption = computed(() => ({
     }
   ]
 }))
+
+const gotomenu=()=>{
+  router.push({
+    path: '/Menu'
+  })
+}
 </script>
 
 <style scoped>

@@ -5,8 +5,9 @@
       <!-- 可扩展菜单按钮 -->
     </header>
 
-    <div class="hero-section">
+    <div class="hero-section" :style="{backgroundImage: 'url('+bgImg+')'}">
       <div class="container">
+            <el-text style="font-size: 6vw; margin-bottom: 2%; color: #409EFF;" class="title">金盾智语</el-text>
             <!-- 聊天框 -->
             <div style="width: 50%; background-color:rgb(243.9, 244.2, 244.8);border-radius: 20px; padding: 10px; display: flex; align-items: flex-end;" >
                 <el-input 
@@ -25,19 +26,27 @@
 
             <!-- 下方两个带阴影的卡片 -->
             <div class="bottom-panels">
-                <div class="panel" @click="gotoChat()">
-                    <div class="text">左侧卡片</div>
-                </div>
-                <div class="panel" @click="gotoVideo()">
-                    <div class="text">右侧卡片</div>
-                </div>
+                <el-card shadow="always" class="panel" @click="gotoChat()" body-style="align-items:start;">
+                    <el-text class="text" >文本风险检测</el-text>
+                    <div style="margin-top: 3%; margin-left: 1%;">
+                      <el-text>金盾智语的诈骗文本辨别助手，帮助</el-text><br>
+                      <el-text>分析诈骗文本</el-text>
+                    </div>
+                </el-card >
+                <el-card shadow="always" class="panel" @click="gotoVideo()">
+                    <el-text class="text" >音频风险检测</el-text>
+                    <div style="margin-top: 3%; margin-left: 1%;">
+                      <el-text>金盾智语的音频伪造识别助手，帮助</el-text><br>
+                      <el-text>分析伪造音频</el-text>
+                    </div>
+                </el-card >
             </div>
         </div>
     </div>
 
     <div class="content-section">
       <!-- 下方 30% 的区域内容 -->
-      <p>这里是下方内容区域，可放按钮、介绍等</p>
+      <p>金盾团队版权所有</p>
     </div>
   </div>
 </template>
@@ -45,8 +54,8 @@
 <script setup>
 import { ref } from 'vue'
 import { Promotion } from '@element-plus/icons-vue'
-import logoImg from '@/image/avater.png'
-import bgImg from "@/image/menuBg.png"
+import logoImg from '@/image/logo2.png'
+import bgImg from '@/image/banner-background.webp'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -116,8 +125,9 @@ html, body {
 }
 
 .logo {
-  height: 64px;     /* 设定固定的高度，保证圆形 */
-  width: 64px;      /* 宽度和高度相同，保持圆形 */
+  height: 60px;     /* 设定固定的高度，保证圆形 */
+  width: 60px;      /* 宽度和高度相同，保持圆形 */
+  padding-top: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -139,8 +149,6 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #5db4e3;
-  background: linear-gradient(0deg, rgba(93, 180, 227, 0.68) 0%, rgba(255, 255, 255, 1) 100%);
 }
 
 .container {
@@ -220,36 +228,24 @@ html, body {
 
 .panel {
   flex: 1;
-  width: 45%; /* 控制宽度 */
+  width: 40%; /* 控制宽度 */
   max-width: 500px;
   height: 100%;
   background-color: white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 16px;
-  text-align: center;
-  cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  display: flex;
-  justify-content: center;  /* 水平居中 */
-  align-items: center;      /* 垂直居中 */
-  backdrop-filter: blur(2px);
-  background-color: rgba(0,191,255, 0.076);
-  box-shadow: rgba(0, 0, 0, 0.3) 2px 8px 8px;
-  border: 2px rgba(255,255,255,0.4) solid;
-  border-bottom: 2px rgba(40,40,40,0.35) solid;
-  border-right: 2px rgba(40,40,40,0.35) solid;
 }
 
 .panel:hover {
-  transform: translateY(-5px);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
 }
 
 .text {
   /* 单独对文字块进行控制 */
-  font-size: 16px;
+  font-size: larger;
   font-weight: bold;
-  color: #333;
+  color:  #409EFF;
   display: block;  /* 使文字块在卡片中独立 */
   padding-left: 5px;
 }
@@ -259,10 +255,18 @@ html, body {
   background-color: #ffffff;
   text-align: center;
 }
+.title{
+  font-family: "阿里妈妈东方大楷 Regular"
+}
 
 @keyframes pulse {
   0% { opacity: 1; }
   50% { opacity: 0.5; }
   100% { opacity: 1; }
+}
+@font-face {
+  font-family: "阿里妈妈东方大楷 Regular";font-weight: 400;src: url("//at.alicdn.com/wf/webfont/9NTCbwrOB2xL/1xgGvtTvuQZP.woff2") format("woff2"),
+  url("//at.alicdn.com/wf/webfont/9NTCbwrOB2xL/sADZ1CWYUGTj.woff") format("woff");
+  font-display: swap;
 }
 </style>

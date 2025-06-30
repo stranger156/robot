@@ -9,8 +9,10 @@
                             <div class="upload-container">
                             <el-upload
                                 class="upload"
+                                ref="fileUpload"
                                 drag
                                 action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                                :auto-upload="false"
                             >
                                 <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                                 <div class="el-upload__text">
@@ -66,6 +68,7 @@
                                 </el-col>
                             </el-row>
                             <el-row style="height: 40%;">
+                              <el-text>{{ sentence }}</el-text>
                             </el-row>
                             <el-row>
                                 <el-col :span="12" style="height: 10%;">
@@ -90,7 +93,10 @@ import 'echarts-wordcloud'
  
 import { ref,onMounted } from "vue"
 
+const fileUpload = ref(null)
 const url = ''
+const sentence = ref('')
+const extractedWords = ref([])
  
  // 词汇数据
  
@@ -167,6 +173,59 @@ function initCharts(){
     }]
 })
 }
+
+// 提交文件方法
+async function submit() {
+  // 获取上传的文件
+  const uploadedFiles = fileUpload.value.uploadFiles
+  if (uploadedFiles.length === 0) {
+    alert('请先上传文件再提交！')
+    return
+  }
+
+  const file = uploadedFiles[0].raw // 获取第一个上传的文件
+  console.log('上传的文件：', file)
+
+  // 创建 FormData 对象，并添加文件
+  const formData = new FormData()
+  formData.append('file', file) // 这里假设后端需要接受字段名为 "file"
+
+  try {
+    // 使用 fetch 提交到后端
+    const response = await fetch('https://your-server-endpoint/api/upload', {
+      method: 'POST',
+      body: formData
+    })
+
+    // 解析服务器返回的数据
+    if (response.ok) {
+      const responseData = await response.json()
+      console.log('服务器响应：', responseData)
+      // 从响应中处理句子和单词+置信度
+      const { words } = responseData.data
+      
+      const sentence = words.map(wordObj => wordObj.word).join(' ')
+      const wordData = words.map(wordObj => ({
+        word: wordObj.word,
+        confidence: wordObj.conf
+      }))
+
+      // 根据返回数据更新 UI 或词云图
+      if (responseData.words) {
+        fruits.value = wordData // 更新词云数据
+        initCharts() // 重新渲染词云图
+      }
+
+    } else {
+      console.error('上传失败！', response.statusText)
+      alert('上传失败，请稍后再试！')
+    }
+  } catch (error) {
+    console.error('提交过程出现错误：', error)
+    alert('提交失败，请检查网络连接或稍后再试！')
+  }
+}
+
  
 onMounted(() => {
  

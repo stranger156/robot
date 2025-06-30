@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <el-container>
-      <el-header><el-text style="font-size: xx-large; font-weight: bolder;">文本风险检测</el-text></el-header>
+      <el-header style="display: flex; justify-content: center; align-content: end;"><el-text style="font-size: xx-large; font-weight: bolder;">文本风险检测</el-text></el-header>
       <el-container>
         <el-main>
           <!-- 网格布局 -->
@@ -31,11 +31,36 @@
                   </el-col>
                 </el-row>
                 <el-row style="height: 80%;">
-                  <el-col :span="12" style="border-right:  solid 1px #CDD0D6;">
+                  <el-col :span="12" style="border-right:  solid 1px #CDD0D6;" v-loading="isLoading">
                     <el-result
+                      v-if="isRisk==0"
+                      icon="primary"
+                      title="这是结果"
+                      sub-title="这里会展现系统判断的结果"
+                      style="padding: 20px; padding-left: 5px;"
+                    >
+                    </el-result>
+                    <el-result
+                      v-else-if="isRisk==1"
+                      icon="success"
+                      title="不是诈骗短信"
+                      sub-title="这不是诈骗文本"
+                      style="padding: 20px; padding-left: 5px;"
+                    >
+                    </el-result>
+                    <el-result
+                      v-else-if="isRisk==2"
                       icon="warning"
                       title="是诈骗短信"
                       sub-title="这是诈骗短信，请仔细辨别"
+                      style="padding: 20px; padding-left: 5px;"
+                    >
+                    </el-result>
+                    <el-result
+                      v-else-if="isRisk==3"
+                      icon="error"
+                      title="出错了"
+                      sub-title="出错啦！请重试"
                       style="padding: 20px; padding-left: 5px;"
                     >
                     </el-result>
@@ -54,12 +79,13 @@
                 <el-col :span="8" class="reason-text" style="width: 30%;">
                   <el-text class="title-text">风险原因</el-text><br>
                   <div style="margin-top: 5%; margin-right: 10%;height: 80%;border-right: solid 1px #CDD0D6;">
-                    <el-text>{{ reasons }}</el-text>
+                    <el-text v-if="!isLoading" v-html="reasons"></el-text>
+                    <el-skeleton v-else :rows="4" animated />
                   </div>
                 </el-col>
                 <el-col :span="16" class="reason-text" style="width: 70%;">
                   <el-text class="title-text">统计图</el-text><br>
-                  <v-chart :option="chartOption" style="width: 100%; height: 100%;" />
+                  <v-chart :option="chartOption" style="width: 100%; height: 100%;" v-loading="isLoading"/>
                 </el-col>
               </el-row>
               </el-card>
@@ -71,7 +97,8 @@
             <el-col class="large-col">
               <el-card shadow="always" class="grid-item large-card" body-style="width:90%; height:95%;">
                 <el-text class="title-text">高危词语展示</el-text><br>
-              <div v-html="highlightedText" style="margin-top: 10%;"></div>
+                <div v-if="!isLoading" v-html="highlightedText" style="margin-top: 10%;"></div>
+                <div v-else style="margin-top: 10%; color: gray;">等待结果中...</div>
               </el-card>
             </el-col>
           </el-row>
@@ -96,61 +123,89 @@ import { graphic } from 'echarts'
 use([TitleComponent, TooltipComponent, GaugeChart, CanvasRenderer, BarChart])
 
 
-const inputText = ref('恭喜您中奖了，请添加我的V信 a1b2c3d4 领取大奖！')
-const url = 'http://localhost:5000'
+const inputText = ref('')
+const url = 'http://10.16.203.7:5000'
 const similarityRate = ref(0)
-const reasons = ref('这是一个原因')
-const key_word_num = reactive({
-  "中奖": 1,
-  "添加我的V信": 1,
-  "领取大奖": 1
+const reasons = ref('❗️这里会展示文本具有风险的原因')
+const key_word_num = ref({
+  "这里会":1,
+  "展示":1,
+  "高危词语频次":1
 })
-const keyWords = ref(['中奖', 'V信', '大奖'])
+const highlightedText = ref('这里会高亮您上传文本中的<span style="color: red;">高危词语</span>')
+const keyWords = ref([])
+const isLoading = ref(false)
+const isRisk = ref(0)
 
 
 // 计算属性，用于处理高亮显示的文本
-const highlightedText = computed(() => {
+function generateHighlightedText() {
   let text = inputText.value
   let keyWordValue = keyWords.value
 
-  // 遍历 keyWords 数组，替换文本中的匹配项
   keyWordValue.forEach(keyword => {
-    const regex = new RegExp(`(${keyword})`, 'gi') // 使用正则表达式匹配关键词，不区分大小写
-    text = text.replace(regex, '<span style="color: red;">$1</span>') // 用红色的 span 包裹匹配的关键词
+    const regex = new RegExp(`(${keyword})`, 'gi')
+    text = text.replace(regex, '<span style="color: red;">$1</span>')
   })
 
-  return text
-})
+  highlightedText.value = text
+}
+
 
 async function submit() {
-  if (!inputValue.value.trim()) {
+  if (!inputText.value.trim()) {
     ElMessage.warning('请输入内容后再提交')
     return
   }
-
+  isLoading.value = true
   try {
     // 第一个接口：上传内容
-    const firstResponse = await axios.post(url+'/upload_text', {
-      text: inputValue.value,
-    })
+    const formData = new FormData()
+    formData.append('text', inputText.value)
+    formData.append('Api_key', 'sk-e0c04983f70041ddbfb0051917c13ed5')
 
-    const apiKey = firstResponse.data.Api_key
+    // 第一个接口：上传内容
+    const firstResponse = await axios.post(url + '/upload_text', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
     const uploadedText = firstResponse.data.text
     ElMessage.success(firstResponse.data.msg)
 
     // 第二个接口：提交分析
     const secondResponse = await axios.post(url+'/bad_info_detect', {
-      text: uploadedText,
-      api_key: apiKey,
+      
     })
 
     const result = secondResponse.data.predict_results
     console.log('检测结果：', result)
+    reasons.value = result.reasons.map(r => `❗️${r}`).join('<br>')
+    keyWords.value = result.key_word
+    key_word_num.value = result.key_word_num
+    similarityRate.value = result.similarity_rate[0]
+    if(result.is_risk)
+    {
+      isRisk.value = 2
+    }
+    else{
+      isRisk.value = 1
+    }
 
+    isLoading.value = false
+
+    generateHighlightedText()
+
+    console.log(reasons.value)
+    console.log(keyWords.value)
+    console.log(key_word_num.value)
     
   } catch (error) {
     console.error('请求出错：', error)
+    isRisk.value = 3
     ElMessage.error('请求失败，请稍后重试')
+  } finally{
+    isLoading.value = false
   }
 }
 
@@ -242,15 +297,15 @@ const gaugeOption = computed(() => ({
 }))
 
 // 获取最大值，用于计算宽度比例
-const maxValue = Math.max(...Object.values(key_word_num));
+
 
 // 根据数据的数量来动态调整宽度
-const barWidth = 100 / Object.keys(key_word_num).length;
+const barWidth = 100 / Object.keys(key_word_num.value).length;
 
 const chartOption = computed(() => ({
   xAxis: {
     type: 'category',
-    data: Object.keys(key_word_num), // x 坐标为 key_word_num 的键
+    data: Object.keys(key_word_num.value), // x 坐标为 key_word_num 的键
     axisLabel: {
       interval: 0, // 保证所有标签都显示
     }
@@ -260,7 +315,7 @@ const chartOption = computed(() => ({
   },
   series: [
     {
-      data: Object.values(key_word_num),  // y 坐标为 key_word_num 的值
+      data: Object.values(key_word_num.value),  // y 坐标为 key_word_num 的值
       type: 'bar',
       itemStyle: {
         // 设置柱子的渐变蓝色

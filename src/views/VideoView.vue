@@ -1,33 +1,46 @@
 <template>
     <div class="page">
         <el-container>
-            <el-header><el-text style="font-size: xx-large; font-weight: bolder;">音频风险检测</el-text></el-header>
+            <el-header style="display: flex; justify-content: center; align-content: end;">
+              <el-text style="font-size: xx-large; font-weight: bolder;">
+              音频风险检测
+              </el-text>
+            </el-header>
             <el-main>
                 <el-row :gutter="0" class="container">
                     <el-col :span="8" class="grid-container">
                         <el-card class="upload-card" shadow="always" body-style="width:80%; height:90%;">
-                            <div class="upload-container">
-                            <el-upload
-                                class="upload"
-                                ref="fileUpload"
-                                drag
-                                action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
-                                :auto-upload="false"
-                            >
-                                <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-                                <div class="el-upload__text">
-                                将文件拖拽至此 或 <em>点击上传</em>
-                                </div>
-                                <template #tip>
-                                <div class="el-upload__tip">
-                                    只支持上传音频片段
-                                </div>
-                                </template>
-                            </el-upload>
-                            <el-button type="primary" class="submit-button" @click="submit">
-                            提交
-                            </el-button>
-                            </div>
+                            <el-row>
+                              <el-col class="upload-container">
+                                <el-upload
+                                    class="upload"
+                                    ref="fileUpload"
+                                    drag
+                                    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                                    :limit="1"
+                                    :on-exceed="handleExceed"
+                                    :auto-upload="false"
+                                    :file-="fileList" 
+                                    :on-change="handleChange"
+                                >
+                                    <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+                                    <div class="el-upload__text">
+                                    将文件拖拽至此 或 <em>点击上传</em>
+                                    </div>
+                                    <template #tip>
+                                    <div class="el-upload__tip">
+                                        只支持上传音频片段
+                                    </div>
+                                    </template>
+                                </el-upload>
+                                <el-button type="primary" class="submit-button" @click="submit">
+                                提交
+                                </el-button>
+                              </el-col>
+                              <el-col style="height: 50%;">
+
+                              </el-col>
+                            </el-row>
                         </el-card>
                     </el-col>
                     <el-col :span="8" class="mid-container">
@@ -173,7 +186,27 @@ function initCharts(){
     }]
 })
 }
+const upload = ref(null)
+const fileList = ref([])
 
+const handleExceed = (files) => {
+  if (upload.value) {
+    upload.value.clearFiles()
+    const file = files[0]
+    file.uid = genFileId()
+    upload.value.handleStart(file)
+  }
+}
+
+const handleChange = (file, fileListNew) => {
+  // 当文件变化时，修改文件名
+  fileList.value = fileListNew.map(file => {
+    return {
+      ...file,
+      name: `${file.name}`  // 这里修改文件名，替换为你的命名规则
+    }
+  })
+}
 // 提交文件方法
 async function submit() {
   // 获取上传的文件
@@ -269,7 +302,7 @@ onMounted(() => {
 }
 .upload-container{
   width: 100%;
-  height: 100%;
+  height: 50%;
   display: flex;
   flex-direction: column;
   justify-content: center;

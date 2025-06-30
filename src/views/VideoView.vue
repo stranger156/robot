@@ -2,9 +2,10 @@
     <div class="page">
         <el-container>
             <el-header style="display: flex; justify-content: center; align-content: end;">
-              <el-text style="font-size: xx-large; font-weight: bolder;">
+              <el-text style="font-size: xx-large; font-weight: bolder; margin: 0 auto;">
               音频风险检测
               </el-text>
+              <el-button type="primary" style="" icon="HomeFilled" @click="gotomenu">回到主页</el-button>
             </el-header>
             <el-main>
                 <el-row :gutter="0" class="container">
@@ -136,6 +137,9 @@ import 'echarts-wordcloud'
  
 import { ref,onMounted } from "vue"
 import { genFileId } from 'element-plus'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const fileUpload = ref(null)
 const tem_url = ref('')
@@ -287,6 +291,11 @@ async function uploadFile(uploadfile) {
   }
 }
 
+const gotomenu=()=>{
+  router.push({
+    path: '/Menu'
+  })
+}
  
 onMounted(() => {
  
@@ -334,7 +343,7 @@ onMounted(() => {
   flex-wrap: wrap;
   flex-direction: column;
   justify-content: center;
-  align-content: space-around;
+  align-items: center;
 }
 .upload{
     width: 100%;

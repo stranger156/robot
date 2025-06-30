@@ -45,14 +45,17 @@
       <component :is="collapsed ? ArrowRight : ArrowLeft" />
     </el-icon>
   </el-button>
-
+  <div style="display: flex; align-items: center;padding: 10px;">
+ <img src="../image/last.png" style="width: 30px;height: 30px;margin-left: 5px;" @click="toMenu" alt="">
    <div 
       style="width: 60%;background-color: rgb(190, 215, 240);margin-left: 20px;
-      margin-bottom: 20px;border-radius: 10px;height: 40px;margin-top: 20px;
+      margin-bottom: 20px;border-radius: 10px;height: 40px;margin-top: 20px;display: inline-block;
      " v-if="!collapsed" @click="addDialog">
          <el-icon :size="30" style="float: left;margin-top: 5px;margin-left: 10px;"><Connection /></el-icon>
        <h1 style="font-size: 20px;margin-top: 4px;">开启新的对话</h1>
       </div>
+  </div>
+ 
     <!-- 聊天列表 -->
       <history class="chat-list" v-if="!collapsed"/>
 
@@ -139,6 +142,9 @@ const articles = [
 ];
 function toggleCollapse() {
   collapsed.value = !collapsed.value
+}
+const toMenu=()=>{
+  router.push('Menu')
 }
 const confirm=()=>{
 dialogVisible.value = false;

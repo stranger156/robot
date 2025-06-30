@@ -258,8 +258,12 @@ const props = defineProps({
 watch(() => props.initialMessage, (newVal) => {
   if (newVal) {
     console.log(newVal)
-    form.input = newVal
-    sendMsg()  // 自动触发发送消息
+    localStorage.setItem('id','1000')
+    setTimeout(()=>{
+ form.input = newVal
+    sendMsg()  
+    },1000)
+   
   }
 }, { immediate: true })
 watch(() => props.data, (newVal) => {

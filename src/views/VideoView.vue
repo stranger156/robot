@@ -20,8 +20,6 @@
                                     :limit="1"
                                     :on-exceed="handleExceed"
                                     :auto-upload="false"
-                                    :file-="fileList" 
-                                    :on-change="handleChange"
                                 >
                                     <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                                     <div class="el-upload__text">
@@ -105,6 +103,7 @@ import * as echarts from "echarts"
 import 'echarts-wordcloud'
  
 import { ref,onMounted } from "vue"
+import { genFileId } from 'element-plus'
 
 const fileUpload = ref(null)
 const url = ''
@@ -186,31 +185,19 @@ function initCharts(){
     }]
 })
 }
-const upload = ref(null)
-const fileList = ref([])
 
 const handleExceed = (files) => {
-  if (upload.value) {
-    upload.value.clearFiles()
+  if (fileUpload.value) {
+    fileUpload.value.clearFiles()
     const file = files[0]
     file.uid = genFileId()
-    upload.value.handleStart(file)
+    fileUpload.value.handleStart(file)
   }
-}
-
-const handleChange = (file, fileListNew) => {
-  // 当文件变化时，修改文件名
-  fileList.value = fileListNew.map(file => {
-    return {
-      ...file,
-      name: `${file.name}`  // 这里修改文件名，替换为你的命名规则
-    }
-  })
 }
 // 提交文件方法
 async function submit() {
   // 获取上传的文件
-  const uploadedFiles = fileUpload.value.uploadFiles
+  const uploadedFiles = fileUpload.value?.uploadFiles
   if (uploadedFiles.length === 0) {
     alert('请先上传文件再提交！')
     return

@@ -92,13 +92,11 @@ import { useRouter } from 'vue-router'
       console.log(res)
       if(res.code===200){
         user.setLoginInfo(res.token)
-    router.push('Main')
+    router.push('Menu')
       }
      })
       // 这里添加登录API调用
-
     }
-
     const handleRegister = () => {
       if (registerForm.value.password !== registerForm.value.confirmPassword) {
         alert('两次输入的密码不一致')

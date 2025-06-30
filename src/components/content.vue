@@ -4,10 +4,8 @@
         <div class="block">
           <img src="../image/logo2.png" alt="">
         </div>
-        <div style="text-align: center;" >{{ status }}
-         
-        </div>
-      
+        <div style="text-align: center;" >{{ status }}</div>
+         <span v-loading="true" style="width: 10px;height: 10px;top: 50px;margin-left: 220px;"></span>
     </div>
     <div class="mid">
       <div style="text-align: center;">    {{ prompt }}</div>
@@ -179,7 +177,7 @@ const sendRecording = async () => {
   try {
     const formData = new FormData();
     const id=localStorage.getItem("id")
-    let isNewDialog=id==999?"true":"false"
+    let isNewDialog=id==1000?"true":"false"
     let gender=localStorage.getItem('gender')
     let token=localStorage.getItem('token')
     status.value="语音识别中..."
@@ -189,6 +187,7 @@ const sendRecording = async () => {
     formData.append('gender',gender)
     formData.append('token',token)
     chat(formData).then(res=>{
+      console.log(res)
       if(res.is_null=="true"){
         console.log("发送的声音为空")
         status.value="未识别到语音，请重说！"

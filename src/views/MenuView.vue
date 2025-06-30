@@ -5,7 +5,7 @@
       <!-- 可扩展菜单按钮 -->
     </header>
 
-    <div class="hero-section" :style="{ backgroundImage: `url(${bgImg})` }">
+    <div class="hero-section">
       <div class="container">
             <!-- 聊天框 -->
             <div style="width: 50%; background-color:rgb(243.9, 244.2, 244.8);border-radius: 20px; padding: 10px; display: flex; align-items: flex-end;" >
@@ -25,10 +25,10 @@
 
             <!-- 下方两个带阴影的卡片 -->
             <div class="bottom-panels">
-                <div class="panel" @click="clickPanel('left')">
+                <div class="panel" @click="gotoChat()">
                     <div class="text">左侧卡片</div>
                 </div>
-                <div class="panel" @click="clickPanel('right')">
+                <div class="panel" @click="gotoVideo()">
                     <div class="text">右侧卡片</div>
                 </div>
             </div>
@@ -46,7 +46,7 @@
 import { ref } from 'vue'
 import { Promotion } from '@element-plus/icons-vue'
 import logoImg from '@/image/avater.png'
-import bgImg from "@/image/menuBg.jpg"
+import bgImg from "@/image/menuBg.png"
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -65,8 +65,16 @@ const handleSend = () => {
   })
 }
 
-const clickPanel = (side) => {
-  console.log(`点击了 ${side} 面板`)
+const gotoChat = () => {
+  router.push({
+    path: '/Text'
+  })
+}
+
+const gotoVideo = () => {
+  router.push({
+    path: '/Video'
+  })
 }
 </script>
 
@@ -124,13 +132,15 @@ html, body {
 
 /* 上方背景图区域 */
 .hero-section {
-  height: 70vh;
+  height: 80vh;
   background-size: cover;
   background-position: center;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #5db4e3;
+  background: linear-gradient(0deg, rgba(93, 180, 227, 0.68) 0%, rgba(255, 255, 255, 1) 100%);
 }
 
 .container {
@@ -140,7 +150,6 @@ html, body {
   flex-direction: column;
   justify-content: center;  /* 主体在中间 */
   align-items: center;
-  background-color: white;
   box-sizing: border-box;
 }
 
@@ -223,6 +232,12 @@ html, body {
   display: flex;
   justify-content: center;  /* 水平居中 */
   align-items: center;      /* 垂直居中 */
+  backdrop-filter: blur(2px);
+  background-color: rgba(0,191,255, 0.076);
+  box-shadow: rgba(0, 0, 0, 0.3) 2px 8px 8px;
+  border: 2px rgba(255,255,255,0.4) solid;
+  border-bottom: 2px rgba(40,40,40,0.35) solid;
+  border-right: 2px rgba(40,40,40,0.35) solid;
 }
 
 .panel:hover {

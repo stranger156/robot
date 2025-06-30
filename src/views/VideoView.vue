@@ -10,16 +10,17 @@
                 <el-row :gutter="0" class="container">
                     <el-col :span="8" class="grid-container">
                         <el-card class="upload-card" shadow="always" body-style="width:80%; height:90%;">
-                            <el-row>
-                              <el-col class="upload-container">
+                            <el-row class="upload-container" style="height: 70%;">
                                 <el-upload
                                     class="upload"
                                     ref="fileUpload"
                                     drag
-                                    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+                                    action="#"
                                     :limit="1"
                                     :on-exceed="handleExceed"
                                     :auto-upload="false"
+                                    :http-request="uploadFile"
+                                    style="margin-bottom: 10%;"
                                 >
                                     <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                                     <div class="el-upload__text">
@@ -31,14 +32,44 @@
                                     </div>
                                     </template>
                                 </el-upload>
-                                <el-button type="primary" class="submit-button" @click="submit">
+                                <el-button type="primary" class="submit-button" @click="handleSubmit">
                                 提交
                                 </el-button>
-                              </el-col>
-                              <el-col style="height: 50%;">
-
-                              </el-col>
-                            </el-row>
+                                </el-row>
+                              <el-row class="upload-container">
+                                <el-result
+                                  v-if="isRisk==0"
+                                  icon="primary"
+                                  title="这是结果"
+                                  sub-title="这里会展现系统判断的结果"
+                                  style="padding: 20px; padding-left: 5px;"
+                                >
+                                </el-result>
+                                <el-result
+                                  v-else-if="isRisk==1"
+                                  icon="success"
+                                  title="不是伪造音频"
+                                  sub-title="这不是伪造音频"
+                                  style="padding: 20px; padding-left: 5px;"
+                                >
+                                </el-result>
+                                <el-result
+                                  v-else-if="isRisk==2"
+                                  icon="warning"
+                                  title="是伪造音频"
+                                  sub-title="这是伪造音频，请仔细辨别"
+                                  style="padding: 20px; padding-left: 5px;"
+                                >
+                                </el-result>
+                                <el-result
+                                  v-else-if="isRisk==3"
+                                  icon="error"
+                                  title="出错了"
+                                  sub-title="出错啦！请重试"
+                                  style="padding: 20px; padding-left: 5px;"
+                                >
+                                </el-result>
+                              </el-row>
                         </el-card>
                     </el-col>
                     <el-col :span="8" class="mid-container">
@@ -47,11 +78,11 @@
                                 <el-card class="fre-card" shadow="always" body-style="width:90%; height:90%;">
                                     <el-row>
                                         <el-col :span="12">
-                                            <el-text class="title-text">频率图</el-text>
+                                            <el-text class="title-text">频谱图</el-text>
                                         </el-col>
                                     </el-row>
                                     <el-row style="height: 80%;">
-                                        <el-image style="width: 100%; height: 100%" :src="url" fit="contain">
+                                        <el-image style="width: 100%; height: 100%" :src="fre_url" fit="contain" v-loading="isLoading">
                                         </el-image>
                                     </el-row>
                                 </el-card>
@@ -60,11 +91,11 @@
                                 <el-card class="tem-card" shadow="always" body-style="width:90%; height:90%;">
                                     <el-row>
                                         <el-col :span="12">
-                                            <el-text class="title-text">热力图</el-text>
+                                            <el-text class="title-text">波形图</el-text>
                                         </el-col>
                                     </el-row>
                                     <el-row style="height: 80%;">
-                                        <el-image style="width: 100%; height: 100%" :src="url" fit="contain">
+                                        <el-image style="width: 100%; height: 100%" :src="tem_url" fit="contain" v-loading="isLoading">
                                         </el-image>
                                     </el-row>
                                 </el-card>
@@ -78,16 +109,17 @@
                                     <el-text class="title-text">语音转文字</el-text>
                                 </el-col>
                             </el-row>
-                            <el-row style="height: 40%;">
-                              <el-text>{{ sentence }}</el-text>
+                            <el-row style="height: 40%; display: flex; justify-content: start; align-content: start; padding-top: 5%;">
+                              <el-text v-if="!isLoading">{{ sentence }}</el-text>
+                              <div v-else style="color: gray;">等待结果中...</div>
                             </el-row>
                             <el-row>
                                 <el-col :span="12" style="height: 10%;">
                                     <el-text class="title-text">词云图</el-text>
                                 </el-col>
                             </el-row>
-                            <el-row style="height: 40%;">
-                            <div ref="cloud" style="height: 100%; width: 100%;"></div>
+                            <el-row style="height: 50%;">
+                            <div ref="cloud" style="height: 100%; width: 100%;" v-loading="isLoading"></div>
                             </el-row>
                         </el-card>
                     </el-col>
@@ -106,36 +138,22 @@ import { ref,onMounted } from "vue"
 import { genFileId } from 'element-plus'
 
 const fileUpload = ref(null)
-const url = ''
-const sentence = ref('')
-const extractedWords = ref([])
+const tem_url = ref('')
+const fre_url=ref('')
+const sentence = ref('这里是语音转文字的结果')
+const isLoading = ref(false)
+const isRisk = ref(0)
  
  // 词汇数据
  
   const fruits = ref([
-    { name: '互联网服务', value: 1000 },
-    { name: '交通运输', value: 850 },
-    { name: '公司', value: 800 },
-    { name: '军工', value: 600 },
-    { name: '医药', value: 900 },
-    { name: '商务服务', value: 600 },
-    { name: '城乡规划', value: 800 },
-    { name: '家政服务', value: 400 },
-    { name: '安防', value: 850 },
-    { name: '医疗服务', value: 200 },
-    { name: '电子科技', value: 8000 },
-    { name: '航空航天', value: 1500 },
-    { name: '食品饮料', value: 1500 },
-    { name: '能源', value: 800 },
-    { name: '教育培训', value: 200 },
-    { name: '金融', value: 100 },
-    { name: '文化娱乐', value: 250 },
-    { name: '电力', value: 1200 },
-    { name: '石油化工', value: 300 },
-    { name: '电子商务', value: 900 },
-    { name: '建筑', value: 700 },
-    { name: '旅游', value: 550 },
-    { name: '环保', value: 750 },
+    { name: '这里会', value: 500},
+    { name: '展示', value: 500 },
+    { name: '上传的', value: 500 },
+    { name: '音频中', value: 550 },
+    { name: '每个', value: 500 },
+    { name: '词语的', value: 500 },
+    { name: '置信度', value: 600 },
     ]);
 const cloud = ref(null)
 function initCharts(){
@@ -151,8 +169,8 @@ function initCharts(){
         keepAspect: false,     
         left: 'center',
         top: 'center',
-        width: '70%',
-        height: '80%',
+        width: '100%',
+        height: '100%',
         right: null,
         bottom: null,
         sizeRange: [12, 60],
@@ -194,41 +212,60 @@ const handleExceed = (files) => {
     fileUpload.value.handleStart(file)
   }
 }
+
+async function handleSubmit() {
+  console.log(fileUpload.value)
+  fileUpload.value.submit();
+}
 // 提交文件方法
-async function submit() {
+async function uploadFile(uploadfile) {
+  const file =uploadfile.file
   // 获取上传的文件
-  const uploadedFiles = fileUpload.value?.uploadFiles
-  if (uploadedFiles.length === 0) {
+  if (file==null) {
     alert('请先上传文件再提交！')
     return
   }
-
-  const file = uploadedFiles[0].raw // 获取第一个上传的文件
+  isLoading.value = true
   console.log('上传的文件：', file)
 
   // 创建 FormData 对象，并添加文件
   const formData = new FormData()
+  formData.append('language', 'en')
   formData.append('file', file) // 这里假设后端需要接受字段名为 "file"
 
   try {
     // 使用 fetch 提交到后端
-    const response = await fetch('https://your-server-endpoint/api/upload', {
+    const response = await fetch('http://10.16.202.103:5050/api/audio-detection', {
       method: 'POST',
       body: formData
     })
 
     // 解析服务器返回的数据
     if (response.ok) {
-      const responseData = await response.json()
+      const responseResult = await response.json()
+      const responseData = responseResult.data
       console.log('服务器响应：', responseData)
       // 从响应中处理句子和单词+置信度
-      const { words } = responseData.data
+      const  words  = responseData.words
       
-      const sentence = words.map(wordObj => wordObj.word).join(' ')
+      isLoading.value = false
+      sentence.value = words.map(wordObj => wordObj.word).join(' ')
       const wordData = words.map(wordObj => ({
-        word: wordObj.word,
-        confidence: wordObj.conf
+        name: wordObj.word,
+        value: wordObj.conf*100
       }))
+      console.log(wordData)
+      tem_url.value = 'http://10.16.202.103:5050'+responseData.waveformFilePath
+      fre_url.value = 'http://10.16.202.103:5050'+responseData.spectrogramFilePath
+
+      if(responseData.fact=="False")
+      {
+        isRisk.value = 2
+      }
+      else if(responseData.fact=="True")
+      {
+        isRisk.value = 1
+      }
 
       // 根据返回数据更新 UI 或词云图
       if (responseData.words) {
@@ -237,10 +274,14 @@ async function submit() {
       }
 
     } else {
+      isLoading.value = false
+      isRisk.value = 3
       console.error('上传失败！', response.statusText)
       alert('上传失败，请稍后再试！')
     }
   } catch (error) {
+    isLoading.value = false
+    isRisk.value = 3
     console.error('提交过程出现错误：', error)
     alert('提交失败，请检查网络连接或稍后再试！')
   }
@@ -289,11 +330,11 @@ onMounted(() => {
 }
 .upload-container{
   width: 100%;
-  height: 50%;
   display: flex;
+  flex-wrap: wrap;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-content: space-around;
 }
 .upload{
     width: 100%;

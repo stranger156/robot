@@ -64,3 +64,12 @@ export const getHistory =()=>{
 			responseType: 'blob'
         })
 }
+ export const chat=(data:any)=>{
+  return $http(
+        {
+            url:"/api/full_process",
+            method:"post",
+            data,
+            headers: { 'Content-Type': 'multipart/form-data'  }
+        })
+}

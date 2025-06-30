@@ -20,7 +20,7 @@
               resize="none"
         ></el-input>
                 <el-icon :size="30" @click="dialogFormVisible=true" style="float: left; margin-left: 15px;margin-bottom: 10px;"><Microphone  /></el-icon>
-                <el-icon :size="30" @click="notifyParent" style="margin-left: 43%; margin-bottom: 10px;" ><Iphone /></el-icon>
+                <el-icon :size="30" @click="notifyParent" style=" margin-bottom: 10px;" ><Iphone /></el-icon>
                 <el-icon :size="30" style="float: right;" @click="sendMsg"><Promotion /></el-icon>
               </div>
 				 <div style="margin: 0 auto;">
@@ -177,12 +177,12 @@ async function sendMsg() {
         try {
           let  str=form.msgList.length===1?"true":"false"
             const id=localStorage.getItem("id")
-            console.log(str)
             const data = qs.stringify({  // 转换为 URL 编码格式
                 prompt: keyword,
                 isNewDialog: str,
                 dialog_id: id
             });
+            console.log(form.msgList.length)
             getAnswer(data).then(res=>{
                 nowId.value=res.dialog_id
             dialog.setDialogInfo(res.dialog_id)
@@ -205,7 +205,7 @@ async function sendMsg() {
                 } else {
                     clearInterval(displayInterval);
                 }
-            }, 30); // 调整这个数字可以改变显示速度
+            }, 50); // 调整这个数字可以改变显示速度
             })
 
         } catch (error) {
@@ -249,8 +249,53 @@ if(newId!==nowId.value){
 }
 
 })
+const props = defineProps({
+  initialMessage: String,
+ data:String
+})
 
-
+// 监听 initialMessage 的变化
+watch(() => props.initialMessage, (newVal) => {
+  if (newVal) {
+    console.log(newVal)
+    form.input = newVal
+    sendMsg()  // 自动触发发送消息
+  }
+}, { immediate: true })
+watch(() => props.data, (newVal) => {
+  if (newVal) {
+       const msg = {
+            question: newVal.question,
+            answer:"Ai生成中..."
+        };
+         form.msgList.push(msg);
+          setScrollToBottom();
+              nowId.value=newVal.dialog_id
+            dialog.setDialogInfo(newVal.dialog_id)
+          const answer=newVal.answer;
+          form.msgList.pop()
+            // 创建新消息用于伪流式显示
+            const streamingMsg = reactive({
+                question: newVal.question,
+                answer: ""
+            });
+            form.msgList.push(streamingMsg);
+              let charIndex = 0;
+            const displayInterval = setInterval(() => {
+                if (charIndex < answer.length) {
+                    streamingMsg.answer += answer[charIndex];
+                    charIndex++;
+                    setScrollToBottom();
+                } else {
+                    clearInterval(displayInterval);
+                }
+            }, 100); // 调整这个数字可以改变显示速度
+  }
+}, { immediate: true })
+onMounted(()=>{
+  let id=localStorage.getItem('id')
+  gethistory(id)
+})
 </script>
 <style scoped>
 html,body{
@@ -333,8 +378,8 @@ html,body{
   line-height: 1.5;
 }
 button {
-    margin-left: 2px;
-    width:100px;
+  margin-left: 2px;
+  width:100px;
   margin-right: 30px;
   padding: 8px 16px;
   background-color: #42b983;

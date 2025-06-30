@@ -5,20 +5,34 @@
     </div>
     <div class="mid">
         <ChatView   @childEvent="handleChildEvent"
+        :initialMessage="initialMessage" 
+       :data="data"
+      
   />
     </div>
     <div v-if="visable" class="right">
- <Content  @childEvent="handleChildEvents"/>
-    </div>
+ <Content  @childEvent="handleChildEvents"   @send-data="handleData" />
+  </div>
   </div>
 </template>
 
 <script  setup name="App">
 import { RouterView } from 'vue-router';
+import { useRoute } from 'vue-router'
 import ChatView from './ChatView.vue';
 import SideBar from './SideBar.vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watchEffect } from 'vue';
 import Content from '@/components/content.vue';
+// const id= ref('');
+// const question=ref('')
+// const answer=ref('')
+const data=ref('')
+const handleData = (res) => {
+  // question.value=data.question
+  // answer.value=data.answer
+  // id.value=data.id
+  data.value=res
+};
 const visable=ref(false)
 const handleChildEvent = (data) => {
   visable.value=data
@@ -26,6 +40,15 @@ const handleChildEvent = (data) => {
 const handleChildEvents = (data) => {
   visable.value=data
 }
+const route = useRoute()
+const initialMessage = ref('')
+
+// 当路由的 `query` 参数改变时，更新 `initialMessage`
+watchEffect(() => {
+  if (route.query.msg) {
+    initialMessage.value = String(route.query.msg)
+  }
+})
 </script>
 
 <style scoped>

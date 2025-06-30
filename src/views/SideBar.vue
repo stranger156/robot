@@ -149,7 +149,8 @@ set.setSettingInfo(value.value)
   })
 }
 const addDialog=()=>{
-dialog.setDialogInfo("999")
+  console.log("添加新对话")
+dialog.setDialogInfo("1000")
 }
 const toLogin=()=>{
   router.push('/')

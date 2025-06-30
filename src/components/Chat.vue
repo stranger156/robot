@@ -23,14 +23,14 @@
   </div>
   
   <div style="margin-top: 10px; margin-left: 50px;">
-    <el-button :icon="Search" circle />
+    <!-- <el-button :icon="Search" circle /> -->
     <el-button type="primary" :icon="DocumentCopy" @click="copyText(msg.answer)" circle />
-    <el-button type="info" :icon="Check" circle />
+    <!-- <el-button type="info" :icon="Check" circle /> -->
     <el-button type="success" :icon="VideoPlay" circle @click="read"  v-loading.fullscreen.lock="show" 
 	 element-loading-text="加载中..."/>
     <el-button type="danger" :icon="VideoPause" circle @click="stopVideo"/>
-    <el-button type="warning" :icon="Star" circle />
-    <el-button type="danger" :icon="Delete" circle />
+    <!-- <el-button type="warning" :icon="Star" circle />
+    <el-button type="danger" :icon="Delete" circle /> -->
   </div>
 </div>
 </div>

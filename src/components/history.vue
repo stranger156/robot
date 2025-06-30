@@ -3,19 +3,19 @@
       <div v-if="todayList.length" style="margin-bottom: 10px;">
       <h2 style="margin-left: 10px;">今天</h2>
 <div :class="item.id==dialogId?'title active':'title'" v-for="item in todayList" @click="selectDialog(item.id)">
-   {{ item.content[0].question }}
+  <span> {{ item.content[0].question.slice(0,15) }}</span><span v-show="item.content[0].question.length>15?true:false">...</span>
 </div>
    </div>
    <div v-if="yesterdayList.length" style="margin-bottom: 10px;">
       <h2 style="margin-left: 10px;">昨天</h2>
 <div :class="item.id==dialogId?'title active':'title'" v-for="item in yesterdayList" @click="selectDialog(item.id)">
-   {{ item.content[0].question }}
+ <span> {{ item.content[0].question.slice(0,15) }}</span><span v-show="item.content[0].question.length>15?true:false">...</span>
 </div>
    </div>
   <div v-if="otherList.length" style="margin-bottom: 10px;">
       <h2 style="margin-left: 10px;">更早</h2>
 <div :class="item.id==dialogId?'title active':'title'" v-for="item in otherList" @click="selectDialog(item.id)">
-   {{ item.content[0].question }}
+<span> {{ item.content[0].question.slice(0,15) }}</span><span v-show="item.content[0].question.length>15?true:false">...</span>
 </div>
    </div></el-scrollbar>
 </template>
@@ -73,16 +73,12 @@ const gethistory=async()=>{
 }
 
 watch(id, (newId) => {
+   console.log(newId)
   dialogId.value=newId;
-   let add=true
-  historyList.value.forEach(item=>{
-   if(item.id===newId){
-      add=false
-   }
-  })
-if(add){
-   if(newId==='999'){
+  if(dialogId.value==='1000'){
       gethistory()
+      console.log(todayList.value)
+      console.log(historyList.value)
    todayList.value.push({
       id:newId,
       content:[{
@@ -90,9 +86,20 @@ if(add){
          answer:''
       }]
    })
-   }else{
-todayList.value[0].id=newId
+   return ;
+  }
+   let add=true
+  historyList.value.forEach(item=>{
+   if(item.id===newId){
+      add=false
    }
+  })
+if(add){
+   todayList.value.forEach(item=>{
+      if(item.id==='1000'){
+         item.id=newId
+      }
+   })   
 }
 })
 onMounted(()=>{

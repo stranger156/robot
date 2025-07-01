@@ -46,7 +46,7 @@
     </el-icon>
   </el-button>
   <div style="display: flex; align-items: center;padding: 10px;">
- <img src="../image/last.png" style="width: 30px;height: 30px;margin-left: 5px;" @click="toMenu" alt="">
+ <img src="../image/last.png" style="width: 50px;height: 50px;margin-left: 5px;" @click="toMenu" alt="">
    <div 
       style="width: 60%;background-color: rgb(190, 215, 240);margin-left: 20px;
       margin-bottom: 20px;border-radius: 10px;height: 40px;margin-top: 20px;display: inline-block;

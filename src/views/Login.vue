@@ -104,8 +104,7 @@ import { useRouter } from 'vue-router'
       }
       console.log('注册数据:', registerForm.value)
       register(registerForm.value).then(res=>{
-        if(res.code===201){
-          console.log(111)
+        if(res.code===200){
            ElMessage({
     message: '注册成功',
     type: 'success',

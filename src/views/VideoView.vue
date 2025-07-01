@@ -1,7 +1,7 @@
 <template>
     <div class="page">
         <el-container>
-            <el-header style="display: flex; justify-content: center; align-content: end;">
+            <el-header style="display: flex; justify-content: center; align-items: center;">
               <el-text style="font-size: xx-large; font-weight: bolder; margin: 0 auto;">
               音频风险检测
               </el-text>

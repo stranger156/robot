@@ -39,9 +39,11 @@ const selectDialog=(id)=>{
 
 const gethistory=async()=>{
    todayList.value=[]
+   console.log(todayList.value)
    yesterdayList.value=[]
    otherList.value=[]
    getHistory().then(res=>{
+      console.log(res)
    let list=[]
             Object.keys( res.historys).forEach(key=>{
                let content=[]
@@ -73,21 +75,49 @@ const gethistory=async()=>{
 }
 
 watch(id, (newId) => {
-   console.log(newId)
-  dialogId.value=newId;
-  if(dialogId.value==='1000'){
-      gethistory()
-      console.log(todayList.value)
-      console.log(historyList.value)
-   todayList.value.push({
+    dialogId.value=newId;
+   if(newId==='1001'){
+      let istrue=true
+setTimeout(()=>{
+   todayList.value.forEach(item=>{
+      if(item.id==='1001'){
+         istrue=false
+      }
+   })
+   if(istrue){
+  todayList.value.unshift({
       id:newId,
       content:[{
          question:'新对话',
          answer:''
       }]
    })
+   }
+   },1000)
+      return;
+   }
+
+  if(dialogId.value==='1000'){
+   let ifadd=true
+   todayList.value.forEach(item=>{
+if(item.id==='1000'||item.id==='1001'){
+   ifadd=false
+}
+   })
+   if(ifadd){
+gethistory().then(()=>{
+ todayList.value.push({
+      id:newId,
+      content:[{
+         question:'新对话',
+         answer:''
+      }]
+   })
+      })
+   }  
    return ;
   }
+
    let add=true
   historyList.value.forEach(item=>{
    if(item.id===newId){
@@ -96,7 +126,7 @@ watch(id, (newId) => {
   })
 if(add){
    todayList.value.forEach(item=>{
-      if(item.id==='1000'){
+      if(item.id==='1000'||item.id==='1001'){
          item.id=newId
       }
    })   

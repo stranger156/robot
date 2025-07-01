@@ -258,7 +258,8 @@ const props = defineProps({
 watch(() => props.initialMessage, (newVal) => {
   if (newVal) {
     console.log(newVal)
-    localStorage.setItem('id','1000')
+      dialog.setDialogInfo('1001')
+    console.log(localStorage.getItem('id'))
     setTimeout(()=>{
  form.input = newVal
     sendMsg()  

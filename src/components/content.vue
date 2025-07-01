@@ -5,7 +5,7 @@
           <img src="../image/logo2.png" alt="">
         </div>
         <div style="text-align: center;" >{{ status }}</div>
-         <span v-loading="true" style="width: 10px;height: 10px;top: 50px;margin-left: 220px;"></span>
+         <span v-loading="loading" style="width: 10px;height: 10px;top: 50px;margin-left: 220px;"></span>
     </div>
     <div class="mid">
       <div style="text-align: center;">    {{ prompt }}</div>
@@ -30,7 +30,8 @@
 import { onMounted, ref } from 'vue';
 import RecordRTC from 'recordrtc';
 import { chat, getText } from '@/utils/api';
-
+import { useDialogStore } from '@/stores/dialogId';
+const loading=ref(false)
 const prompt=ref('你可以开始说话了')
 const isshow=ref(true)
 const status=ref('')
@@ -172,6 +173,7 @@ const isPlaying = ref(false);
 const sendMessage = (res) => {
   emit('send-data',res);
 };
+const dialog=useDialogStore()
 const sendRecording = async () => {
   if (!audioBlob.value) return;
   try {
@@ -181,6 +183,7 @@ const sendRecording = async () => {
     let gender=localStorage.getItem('gender')
     let token=localStorage.getItem('token')
     status.value="语音识别中..."
+    loading.value=true
     formData.append('audiofile', audioBlob.value); // 修改为.mp3后缀
     formData.append('isNewDialog',isNewDialog)
     formData.append("dialog_id",id)
@@ -191,12 +194,13 @@ const sendRecording = async () => {
       if(res.is_null=="true"){
         console.log("发送的声音为空")
         status.value="未识别到语音，请重说！"
+        loading.value=false
         startRecording()
         return ;
       }
       console.log(res)
       sendMessage(res)
-      localStorage.setItem("id",res.dialog_id)
+        dialog.setDialogInfo(res.dialog_id)
        const byteCharacters = atob(res.audio);
   const byteArrays = [];
   
@@ -220,6 +224,7 @@ const sendRecording = async () => {
       console.log(audioPlayer.value)
 	    // 播放音频
       status.value="说话中..."
+          loading.value=false
     audioPlayer.value.play()
       .then(() => {
         isPlaying.value = true;

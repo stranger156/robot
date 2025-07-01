@@ -20,7 +20,7 @@ interface AxiosInstance{
 }
 }
 const $http = axios.create({
-  baseURL: "http://10.16.202.103:5000",
+  baseURL: "http://10.16.200.119:5000",
   timeout: 100000,
   headers:{
     "Content-Type":"application/x-www-form-urlencoded"

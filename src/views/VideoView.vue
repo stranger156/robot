@@ -147,6 +147,7 @@ const fre_url=ref('')
 const sentence = ref('这里是语音转文字的结果')
 const isLoading = ref(false)
 const isRisk = ref(0)
+const url = 'http://10.16.202.103:5050'
  
  // 词汇数据
  
@@ -239,7 +240,7 @@ async function uploadFile(uploadfile) {
 
   try {
     // 使用 fetch 提交到后端
-    const response = await fetch('http://10.16.202.103:5050/api/audio-detection', {
+    const response = await fetch( url +'/api/audio-detection', {
       method: 'POST',
       body: formData
     })
@@ -259,8 +260,8 @@ async function uploadFile(uploadfile) {
         value: wordObj.conf*100
       }))
       console.log(wordData)
-      tem_url.value = 'http://10.16.202.103:5050'+responseData.waveformFilePath
-      fre_url.value = 'http://10.16.202.103:5050'+responseData.spectrogramFilePath
+      tem_url.value = url+responseData.waveformFilePath
+      fre_url.value = url+responseData.spectrogramFilePath
 
       if(responseData.fact=="False")
       {

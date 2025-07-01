@@ -138,6 +138,11 @@ const key_word_num = ref({
   "展示":1,
   "高危词语频次":1
 })
+const correct_keyword = ref({
+  "文本":1,
+  "没有":1,
+  "风险词语":1
+})
 const highlightedText = ref('这里会高亮您上传文本中的<span style="color: red;">高危词语</span>')
 const keyWords = ref([])
 const isLoading = ref(false)
@@ -149,10 +154,15 @@ function generateHighlightedText() {
   let text = inputText.value
   let keyWordValue = keyWords.value
 
+  if(keyWordValue!=null)
+{
   keyWordValue.forEach(keyword => {
     const regex = new RegExp(`(${keyword})`, 'gi')
     text = text.replace(regex, '<span style="color: red;">$1</span>')
   })
+}else{
+  text = '没有高危词语'
+}
 
   highlightedText.value = text
 }
@@ -188,8 +198,8 @@ async function submit() {
     console.log('检测结果：', result)
     reasons.value = result.reasons.map(r => `❗️${r}`).join('<br>')
     keyWords.value = result.key_word
-    key_word_num.value = result.key_word_num
-    similarityRate.value = result.similarity_rate[0]
+    key_word_num.value = result.key_word_num?result.key_word_num:correct_keyword.value
+    similarityRate.value = result.similarity_rate?result.similarity_rate[0]:0
     if(result.is_risk)
     {
       isRisk.value = 2
